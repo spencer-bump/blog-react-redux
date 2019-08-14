@@ -1,4 +1,5 @@
 // Action Creators
+import _ from 'lodash';
 import jsonPlaceholder from '../apis/jsonPlaceholder';
 
 export const fetchPosts =  () => {
@@ -13,12 +14,18 @@ export const fetchPosts =  () => {
 };
 
 export const fetchUser = (userId) => {
-  return async (dispatch) => {
-    const response = await jsonPlaceholder.get(`/users/${userId}`);
-
-    dispatch({
-      type: "FETCH_USER",
-      payload: response.data
-    });
+  return  (dispatch) => {
+    _fetchUser(userId, dispatch);
   };
- }
+ };
+
+// 'memoize' the function so it gets called only
+// once per userId
+const _fetchUser = _.memoize(async (userId, dispatch) => {
+  const response = await jsonPlaceholder.get(`/users/${userId}`);
+
+  dispatch({
+    type: "FETCH_USER",
+    payload: response.data
+  });
+});
