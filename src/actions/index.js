@@ -13,19 +13,27 @@ export const fetchPosts =  () => {
   };
 };
 
-export const fetchUser = (userId) => {
-  return  (dispatch) => {
-    _fetchUser(userId, dispatch);
-  };
- };
-
-// 'memoize' the function so it gets called only
-// once per userId
-const _fetchUser = _.memoize(async (userId, dispatch) => {
+export const fetchUser = userId => async dispatch => {
   const response = await jsonPlaceholder.get(`/users/${userId}`);
 
   dispatch({
     type: "FETCH_USER",
     payload: response.data
   });
-});
+};
+
+
+export const fetchPostsAndUsers = () => async (dispatch, getState) => {
+  await dispatch(fetchPosts());
+  // const userIds = _.uniq(_.map(getState().posts, 'userId'));
+  // userIds.forEach(userId => dispatch(fetchUser(userId)));
+
+  _.chain(getState().posts)
+    .map('userId')
+    .uniq()
+    .forEach(userId => dispatch(fetchUser(userId)))
+    .value();
+
+};
+
+
